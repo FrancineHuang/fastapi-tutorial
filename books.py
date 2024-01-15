@@ -44,15 +44,34 @@ async def read_author_category_by_query(book_author: str, category: str):
     return books_to_return
 
 
-# creating data by the post method
+# create the data by the post method
 @app.post("/books/create_book")
 async def create_book(new_book=Body()):
     BOOKS.append(new_book)
 
 
-# updating data by the put method
+# update the data by the put method
 @app.put("/books/update_book")
 async def update_book(updated_book=Body()):
     for i in range(len(BOOKS)):
         if BOOKS[i].get('title').casefold() == updated_book.get('title').casefold:
             BOOKS[i] = updated_book
+
+
+# delete the data by the delete method
+@app.delete("/books/delete-book/{book_title}")
+async def delete_book(book_title: str):
+    for i in range(len(BOOKS)):
+        if BOOKS[i].get('title').casefold() == book_title.casefold():
+            BOOKS.pop(i)
+            break
+
+
+# assignment: fetch all books by specific author
+@app.get("/books/by_author/{author}")
+async def fetch_books_by_author(author: str):
+    books_to_return = []
+    for book in BOOKS:
+        if book.get('author').casefold() == author.casefold():
+            books_to_return.append(book)
+    return books_to_return
