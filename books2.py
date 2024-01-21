@@ -28,6 +28,17 @@ class BookRequest(BaseModel):
     description: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=-1, lt=6)
 
+    class Config:
+        schema_extra = {
+            'example': {
+                'title': 'A New Book',
+                'author': 'CodingWithFrancine',
+                'description': 'A New description of a book',
+                'rating': 5
+
+            }
+        }
+
 
 BOOKS = [
     Book(1, 'Computer Science Pro', 'CodingWithRoby', 'A very nice book', 5),
@@ -44,6 +55,13 @@ async def read_all_books():
     return BOOKS
 
 
+@app.get("/books/{book_id}")
+async def read_book(book_id: int):
+    for book in BOOKS:
+        if book.id == book_id:
+            return book
+
+
 @app.post("/books")
 async def create_book(book_request: BookRequest):
     new_book = Book(**book_request.dict())
@@ -52,7 +70,6 @@ async def create_book(book_request: BookRequest):
 
 
 def find_book_id(book: Book):
-
     book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
 
     # This code has the same meaning as below:
