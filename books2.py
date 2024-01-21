@@ -1,11 +1,13 @@
+from typing import Optional
+
 from fastapi import FastAPI, Body
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
 
 class Book:
-    id: int
+    id: Optional[int]
     title: str
     author: str
     description: str
@@ -18,12 +20,13 @@ class Book:
         self.description = description
         self.rating = rating
 
+
 class BookRequest(BaseModel):
     id: int
-    title: str
-    author: str
-    description: str
-    rating: int
+    title: str = Field(min_length=3)
+    author: str = Field(min_length=1)
+    description: str = Field(min_length=1, max_length=100)
+    rating: int = Field(gt=-1, lt=6)
 
 
 BOOKS = [
@@ -46,3 +49,16 @@ async def create_book(book_request: BookRequest):
     new_book = Book(**book_request.dict())
     print(type(new_book))
     BOOKS.append(new_book)
+
+
+def find_book_id(book: Book):
+
+    book.id = 1 if len(BOOKS) == 0 else BOOKS[-1].id + 1
+
+    # This code has the same meaning as below:
+    # if len(BOOKS) > 0:
+    #     book.id = BOOKS[-1].id + 1
+    # else:
+    #     book.id = 1
+
+    return book
